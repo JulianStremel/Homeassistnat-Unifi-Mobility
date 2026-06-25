@@ -9,7 +9,7 @@ The current implementation is intentionally read-only and focused on exposing mo
 - UI-based config flow.
 - Cloud polling through `https://api.ui.com/v1/mobility`.
 - Device detail polling for each UniFi Mobility device in a workspace.
-- Sensors for connection state, WAN source, ISP, LTE signal level, cellular data usage/limit, memory usage, uptime, and client count.
+- Sensors for connection state, WAN source, ISP, LTE signal level, cellular data usage/limit, memory usage, last restart, and client count.
 - Diagnostics with API key redaction.
 
 ## Installation with HACS
@@ -48,9 +48,9 @@ The integration currently creates the following entities per discovered Mobility
 - `sensor`: WAN source.
 - `sensor`: ISP.
 - `sensor`: LTE signal level.
-- `sensor`: cellular data usage and limit.
+- `sensor`: cellular data usage and limit as Home Assistant data size sensors.
 - `sensor`: memory usage.
-- `sensor`: uptime.
+- `sensor`: last restart timestamp derived from `uptime_seconds`.
 - `sensor`: connected client count.
 
 Because the public Mobility API is new and payloads may vary by device model and firmware, unsupported or absent fields will appear as unavailable or unknown. The observed device payload does not include GPS coordinates, so this integration does not create device tracker entities.
