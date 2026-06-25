@@ -1,0 +1,23 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "UniFi Mobility",
+        "description": "Enter a UniFi Mobility API key with the read:mobility scope. Leave Workspace ID blank to use the first visible workspace.",
+        "data": {
+          "api_key": "API key",
+          "base_url": "Base URL",
+          "workspace_id": "Workspace ID"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Unable to connect to the UniFi Mobility API.",
+      "invalid_auth": "The API key was rejected or does not include the required scope.",
+      "no_workspaces": "No UniFi Mobility workspaces were returned for this API key."
+    },
+    "abort": {
+      "already_configured": "This UniFi Mobility workspace is already configured."
+    }
+  }
+}
