@@ -1,0 +1,11 @@
+{
+  "domain": "unifi_mobility",
+  "name": "UniFi Mobility",
+  "codeowners": [],
+  "config_flow": true,
+  "documentation": "https://github.com/custom-components/unifi_mobility",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/custom-components/unifi_mobility/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
