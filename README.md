@@ -1,5 +1,7 @@
 # UniFi Mobility for Home Assistant
 
+[![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=JulianStremel&repository=Homeassistnat-Unifi-Mobility&category=integration)
+
 A HACS-compatible custom integration that starts Home Assistant support for the official UniFi Mobility API.
 
 The current implementation is intentionally read-only and focused on exposing mobile routing device telemetry as Home Assistant entities. It polls the UniFi cloud Mobility API and creates entities for each discovered Mobility device in the selected workspace.
@@ -9,7 +11,7 @@ The current implementation is intentionally read-only and focused on exposing mo
 - UI-based config flow.
 - Cloud polling through `https://api.ui.com/v1/mobility`.
 - Device detail polling for each UniFi Mobility device in a workspace.
-- Sensors for connection state, WAN source, ISP, LTE signal level, cellular data usage/limit, memory usage, last restart, and client count.
+- Sensors for connection state, WAN source, ISP, LTE signal level, cellular data usage/limit, memory usage, uptime, and client count.
 - Diagnostics with API key redaction.
 
 ## Installation with HACS
@@ -17,10 +19,20 @@ The current implementation is intentionally read-only and focused on exposing mo
 1. Open HACS in Home Assistant.
 2. Go to **Integrations**.
 3. Open the three-dot menu and choose **Custom repositories**.
-4. Add this repository URL and select **Integration** as the category.
+4. Add `https://github.com/JulianStremel/Homeassistnat-Unifi-Mobility` and select **Integration** as the category.
 5. Install **UniFi Mobility**.
 6. Restart Home Assistant.
 7. Go to **Settings → Devices & services → Add integration** and search for **UniFi Mobility**.
+
+## Updating with HACS
+
+After this repository is installed through HACS as a custom integration, future tagged releases with a higher `manifest.json` version should appear as update notifications in **Settings → Updates**. You can install those updates from the update notification or from the HACS repository page without manually redownloading the repository.
+
+Home Assistant still needs a restart after installing or updating this custom integration because Python custom component code is loaded into the Home Assistant process. HACS copies the files to `custom_components`, but Home Assistant does not unload and re-import all custom integration code safely at runtime. A restart makes Home Assistant load the new files and register the integration cleanly.
+
+## Unit handling
+
+The Mobility API reports cellular data usage and limits in bytes, and uptime in seconds. This integration keeps bytes and seconds as native units and sets Home Assistant suggested display units instead of converting the native values itself. That lets Home Assistant's sensor unit handling display usage in MB, limits in GB, and uptime in minutes while preserving the raw API values as the source measurements.
 
 ## Manual installation
 
@@ -48,10 +60,10 @@ The integration currently creates the following entities per discovered Mobility
 - `sensor`: WAN source.
 - `sensor`: ISP.
 - `sensor`: LTE signal level.
-- `sensor`: cellular data usage and limit as Home Assistant data size sensors.
+- `sensor`: cellular data usage and limit as byte-native Home Assistant data size sensors, with suggested display units of MB for usage and GB for limits.
 - `sensor`: memory usage.
-- `sensor`: last restart timestamp derived from `uptime_seconds`.
-- `sensor`: connected client count.
+- `sensor`: uptime duration as a second-native sensor with minutes suggested for display.
+- `sensor`: connected client count as a numeric measurement sensor.
 
 Because the public Mobility API is new and payloads may vary by device model and firmware, unsupported or absent fields will appear as unavailable or unknown. The observed device payload does not include GPS coordinates, so this integration does not create device tracker entities.
 
