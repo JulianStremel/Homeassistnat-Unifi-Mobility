@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
-from typing import Any, Callable
+from typing import Any
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -13,7 +12,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import PERCENTAGE, UnitOfInformation
+from homeassistant.const import PERCENTAGE, UnitOfInformation, UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -27,16 +26,6 @@ class UniFiMobilitySensorEntityDescription(SensorEntityDescription):
     """Describe a UniFi Mobility sensor."""
 
     value_key: str
-    value_fn: Callable[[Any], Any] | None = None
-
-
-def _uptime_to_last_restart(value: Any) -> datetime | None:
-    """Convert uptime seconds to a timestamp for the last device restart."""
-    try:
-        uptime_seconds = float(value)
-    except (TypeError, ValueError):
-        return None
-    return datetime.now(UTC) - timedelta(seconds=uptime_seconds)
 
 
 SENSOR_DESCRIPTIONS = (
@@ -68,6 +57,7 @@ SENSOR_DESCRIPTIONS = (
         key="cellular_data_usage_bytes",
         name="Cellular data usage",
         native_unit_of_measurement=UnitOfInformation.BYTES,
+        suggested_unit_of_measurement=UnitOfInformation.MEGABYTES,
         device_class=SensorDeviceClass.DATA_SIZE,
         state_class=SensorStateClass.TOTAL_INCREASING,
         suggested_display_precision=2,
@@ -78,6 +68,7 @@ SENSOR_DESCRIPTIONS = (
         key="cellular_data_limit_bytes",
         name="Cellular data limit",
         native_unit_of_measurement=UnitOfInformation.BYTES,
+        suggested_unit_of_measurement=UnitOfInformation.GIGABYTES,
         device_class=SensorDeviceClass.DATA_SIZE,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=2,
@@ -92,16 +83,20 @@ SENSOR_DESCRIPTIONS = (
         value_key="memory_usage_percent",
     ),
     UniFiMobilitySensorEntityDescription(
-        key="last_restart",
-        name="Last restart",
-        device_class=SensorDeviceClass.TIMESTAMP,
-        icon="mdi:restart",
+        key="uptime_seconds",
+        name="Uptime",
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        suggested_unit_of_measurement=UnitOfTime.MINUTES,
+        device_class=SensorDeviceClass.DURATION,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        icon="mdi:timer-outline",
         value_key="uptime_seconds",
-        value_fn=_uptime_to_last_restart,
     ),
     UniFiMobilitySensorEntityDescription(
         key="client_count",
         name="Clients",
+        state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:account-network",
         value_key="client_count",
     ),
@@ -151,10 +146,7 @@ class UniFiMobilitySensor(CoordinatorEntity[UniFiMobilityCoordinator], SensorEnt
     @property
     def native_value(self) -> Any:
         """Return the sensor value."""
-        value = self._device.get(self.entity_description.value_key)
-        if self.entity_description.value_fn:
-            return self.entity_description.value_fn(value)
-        return value
+        return self._device.get(self.entity_description.value_key)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
